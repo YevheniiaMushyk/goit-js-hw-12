@@ -19,7 +19,7 @@ userInput.addEventListener('submit', e => {
   activeLoader.classList.toggle('loader-active');
 
   fetchGallery(userInputValue)
-    .then(data => {
+    .then(({ data }) => {
       renderGallery(data);
     })
     .catch(() => {
@@ -50,14 +50,9 @@ const searchParams = new URLSearchParams({
 });
 
 function fetchGallery(userRequest) {
-  return fetch(
+  return axios.get(
     `https://pixabay.com/api/?key=41825347-2a0e6255edbe790f7737a6334&q=${userRequest}&${searchParams}`
-  ).then(response => {
-    if (!response.ok) {
-      throw new Error(response.status);
-    }
-    return response.json();
-  });
+  );
 }
 
 function renderGallery(data) {
