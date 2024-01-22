@@ -6,6 +6,8 @@ import 'simplelightbox/dist/simple-lightbox.min.css';
 
 import icon from './img/x-octagon.svg';
 
+import axios from 'axios';
+
 const userInput = document.querySelector('.data-select');
 const userList = document.querySelector('.gallery-list');
 const activeLoader = document.querySelector('.loader');
