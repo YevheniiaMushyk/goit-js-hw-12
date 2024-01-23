@@ -10,13 +10,27 @@ import axios from 'axios';
 
 const userInput = document.querySelector('.data-select');
 const userList = document.querySelector('.gallery-list');
-const activeLoader = document.querySelector('.loader');
+const loader = document.querySelector('.loader');
+const addButton = document.querySelector('.add-button');
+
+let userInputForAdd;
+
+let searchParams = new URLSearchParams({
+  image_type: 'photo',
+  orientation: 'horizontal',
+  safesearch: true,
+  per_page: 3,
+});
 
 userInput.addEventListener('submit', e => {
   e.preventDefault();
+  userInputForAdd = '';
   const userInputValue = userInput.elements.request.value.trim();
   userList.innerHTML = '';
-  activeLoader.classList.toggle('loader-active');
+  searchParams.page = 1;
+  console.log(`32${searchParams}`);
+  loader.classList.toggle('active');
+  userInputForAdd = userInputValue;
 
   fetchGallery(userInputValue)
     .then(({ data }) => {
@@ -38,19 +52,15 @@ userInput.addEventListener('submit', e => {
       });
     })
     .finally(() => {
-      activeLoader.classList.toggle('loader-active');
+      loader.classList.toggle('active');
+      addButton.classList.toggle('active');
       userInput.reset();
     });
 });
 
-const searchParams = new URLSearchParams({
-  image_type: 'photo',
-  orientation: 'horizontal',
-  safesearch: true,
-});
-
-function fetchGallery(userRequest) {
-  return axios.get(
+async function fetchGallery(userRequest) {
+  console.log(searchParams);
+  return await axios.get(
     `https://pixabay.com/api/?key=41825347-2a0e6255edbe790f7737a6334&q=${userRequest}&${searchParams}`
   );
 }
@@ -114,3 +124,32 @@ function renderGallery(data) {
   });
   lightbox.refresh();
 }
+
+addButton.addEventListener('click', evt => {
+  evt.preventDefault();
+  searchParams.page += 1;
+  console.log(searchParams);
+
+  fetchGallery(userInputForAdd).then(({ data }) => {
+    renderGallery(data);
+  });
+  // .catch(() => {
+  //   iziToast.error({
+  //     message: 'Something wrong. Please try again later!',
+  //     messageColor: '#FAFAFB',
+  //     messageSize: '16',
+  //     messageLineHeight: '20',
+  //     position: 'topRight',
+  //     backgroundColor: '#EF4040',
+  //     iconUrl: icon,
+  //     icon: 'fa-regular',
+  //     iconColor: '#FAFAFB',
+  //     maxWidth: '500',
+  //     transitionIn: 'bounceInLeft',
+  //   });
+  // })
+  // .finally(() => {
+  //   loader.classList.toggle('active');
+  //   addButton.classList.toggle('active');
+  // });
+});

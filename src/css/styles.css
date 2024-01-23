@@ -92,7 +92,7 @@
   transform: translateX(-50%);
 }
 
-.loader-active {
+.active {
   visibility: hidden;
   opacity: 0;
   width: 1px;
@@ -131,6 +131,7 @@
   justify-content: flex-start;
   align-items: flex-start;
   gap: 24px;
+  margin-bottom: 32px;
 }
 
 .gallery-item {
@@ -150,8 +151,6 @@
   align-items: center;
 }
 
-/* .info-item {
-} */
 .item-title {
   font-weight: 700;
 }
@@ -159,4 +158,9 @@
 .item-content {
   display: flex;
   justify-content: center;
+}
+
+.add-button {
+  display: block;
+  margin: 0 auto;
 }
