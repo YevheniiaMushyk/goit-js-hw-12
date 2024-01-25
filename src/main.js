@@ -14,21 +14,25 @@ const loader = document.querySelector('.loader');
 const addButton = document.querySelector('.add-button');
 
 let userInputForAdd;
+let page = 1;
+console.log(page);
 
 let searchParams = new URLSearchParams({
   image_type: 'photo',
   orientation: 'horizontal',
   safesearch: true,
   per_page: 3,
+  page: page,
 });
+console.log(`27 ${searchParams.page}`);
 
 userInput.addEventListener('submit', e => {
   e.preventDefault();
   userInputForAdd = '';
   const userInputValue = userInput.elements.request.value.trim();
   userList.innerHTML = '';
-  searchParams.page = 1;
-  console.log(`32${searchParams}`);
+  // page = 1;
+  // console.dir(searchParams);
   loader.classList.toggle('active');
   userInputForAdd = userInputValue;
 
@@ -59,7 +63,7 @@ userInput.addEventListener('submit', e => {
 });
 
 async function fetchGallery(userRequest) {
-  console.log(searchParams);
+  console.log(`66 ${searchParams.page}`);
   return await axios.get(
     `https://pixabay.com/api/?key=41825347-2a0e6255edbe790f7737a6334&q=${userRequest}&${searchParams}`
   );
@@ -127,8 +131,9 @@ function renderGallery(data) {
 
 addButton.addEventListener('click', evt => {
   evt.preventDefault();
-  searchParams.page += 1;
-  console.log(searchParams);
+  page += 1;
+  console.log(page);
+  console.log(`135 ${searchParams.page}`);
 
   fetchGallery(userInputForAdd).then(({ data }) => {
     renderGallery(data);
