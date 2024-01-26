@@ -141,9 +141,8 @@ function renderGallery(data) {
     .join('');
   userList.insertAdjacentHTML('beforeend', markup);
 
-  const element = document.querySelector('.gallery-item');
-  const rect = element.getBoundingClientRect().height;
-  window.scrollBy(0, 2 * rect);
+  // const element = document.querySelector('.gallery-item');
+  // const rect = element.getBoundingClientRect().height;
 
   const lightbox = new SimpleLightbox('.gallery-list a', {
     captionsData: 'alt',
@@ -151,6 +150,11 @@ function renderGallery(data) {
   });
   lightbox.refresh();
 }
+window.scrollBy({
+  top: 500,
+  left: 0,
+  behavior: 'smooth',
+});
 
 addButton.addEventListener('click', evt => {
   evt.preventDefault();
