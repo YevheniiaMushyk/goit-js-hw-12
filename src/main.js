@@ -141,20 +141,12 @@ function renderGallery(data) {
     .join('');
   userList.insertAdjacentHTML('beforeend', markup);
 
-  // const element = document.querySelector('.gallery-item');
-  // const rect = element.getBoundingClientRect().height;
-
   const lightbox = new SimpleLightbox('.gallery-list a', {
     captionsData: 'alt',
     captionDelay: 250,
   });
   lightbox.refresh();
 }
-window.scrollBy({
-  top: 500,
-  left: 0,
-  behavior: 'smooth',
-});
 
 addButton.addEventListener('click', evt => {
   evt.preventDefault();
@@ -166,6 +158,13 @@ addButton.addEventListener('click', evt => {
   fetchGallery(userInputForAdd)
     .then(({ data }) => {
       renderGallery(data);
+      const element = document.querySelector('.gallery-item');
+      const rect = element.getBoundingClientRect().height * 2;
+      window.scrollBy({
+        top: rect,
+        left: 0,
+        behavior: 'smooth',
+      });
     })
     .catch(() => {
       iziToast.error({
