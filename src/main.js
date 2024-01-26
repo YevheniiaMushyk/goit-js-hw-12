@@ -15,28 +15,27 @@ const addButton = document.querySelector('.add-button');
 
 let userInputForAdd;
 let page = 1;
-console.log(`Строка 18 Встановлюємо початкове значення: page = ${page}`);
+let totalPages;
 
 const searchParams = new URLSearchParams({
   image_type: 'photo',
   orientation: 'horizontal',
   safesearch: true,
-  per_page: 3,
-  page,
+  per_page: 40,
+  page: 1,
 });
-searchParams[page] = page;
-console.log(
-  `Строка 28 Встановлюємо початкове значення: searchParams.page=${searchParams[page]}`
-);
+const perPageValue = searchParams.get('per_page');
 
 userInput.addEventListener('submit', e => {
   e.preventDefault();
+  loader.classList.toggle('active');
+  addButton.classList.add('active');
   userInputForAdd = '';
   const userInputValue = userInput.elements.request.value.trim();
   userList.innerHTML = '';
-  // page = 1;
-  // console.log(`Строка 36 ${page}`);
-  loader.classList.toggle('active');
+  page = 1;
+  searchParams.set('page', page);
+
   userInputForAdd = userInputValue;
 
   fetchGallery(userInputValue)
@@ -60,21 +59,21 @@ userInput.addEventListener('submit', e => {
     })
     .finally(() => {
       loader.classList.toggle('active');
-      addButton.classList.toggle('active');
+      if (page <= totalPages) {
+        addButton.classList.remove('active');
+      }
       userInput.reset();
     });
 });
 
 async function fetchGallery(userRequest) {
-  console.log(
-    `Строка 67 параметри перед запитом searchParams.page =${searchParams[page]}`
-  );
   return await axios.get(
     `https://pixabay.com/api/?key=41825347-2a0e6255edbe790f7737a6334&q=${userRequest}&${searchParams}`
   );
 }
 
 function renderGallery(data) {
+  totalPages = Math.ceil(data.totalHits / perPageValue);
   if (data.totalHits <= 0) {
     iziToast.error({
       message:
@@ -90,7 +89,22 @@ function renderGallery(data) {
       closeOnClick: true,
       close: false,
     });
+  } else if (page > totalPages) {
+    iziToast.error({
+      message: 'We are sorry, but you have reached the end of search results.',
+      messageColor: '#FAFAFB',
+      messageSize: '16',
+      messageLineHeight: '20',
+      position: 'topRight',
+      backgroundColor: '#91e3fa',
+      iconUrl: icon,
+      iconColor: '#FAFAFB',
+      maxWidth: '500',
+      closeOnClick: true,
+      close: false,
+    });
   }
+
   const markup = data.hits
     .map(hit => {
       return `<li class="gallery-item">
@@ -127,6 +141,10 @@ function renderGallery(data) {
     .join('');
   userList.insertAdjacentHTML('beforeend', markup);
 
+  const element = document.querySelector('.gallery-item');
+  const rect = element.getBoundingClientRect().height;
+  window.scrollBy(0, 2 * rect);
+
   const lightbox = new SimpleLightbox('.gallery-list a', {
     captionsData: 'alt',
     captionDelay: 250,
@@ -136,31 +154,35 @@ function renderGallery(data) {
 
 addButton.addEventListener('click', evt => {
   evt.preventDefault();
+  loader.classList.toggle('active');
+  addButton.classList.add('active');
   page += 1;
-  console.log(`Строка 136 Збільшуємо значення на 1: page=${page}`);
-  searchParams[page] = page;
-  console.log(`Строка 138 searchParams.page=${searchParams[page]}`);
+  searchParams.set('page', page);
 
-  fetchGallery(userInputForAdd).then(({ data }) => {
-    renderGallery(data);
-  });
-  // .catch(() => {
-  //   iziToast.error({
-  //     message: 'Something wrong. Please try again later!',
-  //     messageColor: '#FAFAFB',
-  //     messageSize: '16',
-  //     messageLineHeight: '20',
-  //     position: 'topRight',
-  //     backgroundColor: '#EF4040',
-  //     iconUrl: icon,
-  //     icon: 'fa-regular',
-  //     iconColor: '#FAFAFB',
-  //     maxWidth: '500',
-  //     transitionIn: 'bounceInLeft',
-  //   });
-  // })
-  // .finally(() => {
-  //   loader.classList.toggle('active');
-  //   addButton.classList.toggle('active');
-  // });
+  fetchGallery(userInputForAdd)
+    .then(({ data }) => {
+      renderGallery(data);
+    })
+    .catch(() => {
+      iziToast.error({
+        message: 'Something wrong. Please try again later!',
+        messageColor: '#FAFAFB',
+        messageSize: '16',
+        messageLineHeight: '20',
+        position: 'topRight',
+        backgroundColor: '#EF4040',
+        iconUrl: icon,
+        icon: 'fa-regular',
+        iconColor: '#FAFAFB',
+        maxWidth: '500',
+        transitionIn: 'bounceInLeft',
+      });
+    })
+    .finally(() => {
+      loader.classList.toggle('active');
+      if (page <= totalPages) {
+        addButton.classList.remove('active');
+      }
+      userInput.reset();
+    });
 });
